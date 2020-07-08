@@ -14,7 +14,7 @@ from kobuki_msgs.msg import SensorState
 import actionlib
 from actionlib_msgs.msg import *
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from actionlib import action_clie
+from actionlib import action_client
 abs_file = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(abs_file + "/../../../lib/comm")
 sys.path.append(abs_file + "/../../../lib/log")
@@ -200,7 +200,7 @@ class ActuatorMove(Actuator):
                 self.goal.target_pose.header.stamp = rospy.Time.now()
                 self.move_base.send_goal(self.goal)
             elif p0 == "C":
-                self.goal.target_pose.pose = self.location['C]
+                self.goal.target_pose.pose = self.location['C']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
                 self.move_base.send_goal(self.goal)
             elif p0 == "D":
@@ -223,7 +223,7 @@ class ActuatorMove(Actuator):
                 self.goal.target_pose.pose = self.location['H']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
                 self.move_base.send_goal(self.goal)
-            else
+            else:
                 pass
         elif msg.cmd == "Charge":
             self.goal.target_pose.pose = self.location['X']
