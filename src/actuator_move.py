@@ -12,9 +12,14 @@ import rospy
 import math
 from kobuki_msgs.msg import SensorState
 import actionlib
+import roslib
+import rospy
+import actionlib
 from actionlib_msgs.msg import *
+from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, Point, Quaternion, Twist
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from actionlib import action_client
+from random import sample
+from math import pow, sqrt
 abs_file = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(abs_file + "/../../../lib/comm")
 sys.path.append(abs_file + "/../../../lib/log")
