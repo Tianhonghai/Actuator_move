@@ -80,9 +80,6 @@ cmd_description_dict = {
                     'listlimit': ['X', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
                 }
             ],
-            'return':{
-                'type': 'int'
-            }
         },        
         {
             'cmd': 'Charge',
@@ -95,9 +92,6 @@ cmd_description_dict = {
                 'numberlimit': [0., 100.]
                 }
             ],
-            'return':{
-                'type': 'int'
-            }
         },
         {
             'cmd': 'Battery',
@@ -120,7 +114,7 @@ def get_dict_key_value(dict_ins, key, value_type):
     return value
 
 class ActuatorMove(Actuator):
-    def __init__(self, name, proxy_name, proxy_ip):
+    def __init__(self, name, is_simulation, proxy_name, proxy_ip):
         Actuator.__init__(self, name)
         self.is_simulation_ = is_simulation
 
@@ -216,53 +210,79 @@ class ActuatorMove(Actuator):
                 error_code = E_MOD_PARAM
                 error_info = ErrorInfo(error_code, "params [p0] none")
             elif self.is_simulation_:
-                return 3
+                error_code = E_OK
+                error_info = ErrorInfo(error_code, "")
+                self.reply_result(msg, error_info, None)
             elif p0 == "A":
                 self.goal.target_pose.pose = self.location['A']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params A done")
+                self.reply_result(msg, error_info, None)
             elif p0 == "B":
                 self.goal.target_pose.pose = self.location['B']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params B done")
+                self.reply_result(msg, error_info, None)
             elif p0 == "C":
                 self.goal.target_pose.pose = self.location['C']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params C done")
+                self.reply_result(msg, error_info, None)
             elif p0 == "D":
                 self.goal.target_pose.pose = self.location['D']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params D done")
+                self.reply_result(msg, error_info, None)
             elif p0 == "E":
                 self.goal.target_pose.pose = self.location['E']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params E done")
+                self.reply_result(msg, error_info, None)
             elif p0 == "F":
                 self.goal.target_pose.pose = self.location['F']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params F done")
+                self.reply_result(msg, error_info, None)
             elif p0 == "G":
                 self.goal.target_pose.pose = self.location['G']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params G done")
+                self.reply_result(msg, error_info, None)
             elif p0 == "H":
                 self.goal.target_pose.pose = self.location['H']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                return self.move_base.send_goal_and_wait(self.goal)
+                error_code = self.move_base.send_goal_and_wait(self.goal)
+                error_info = ErrorInfo(error_code, "params H done")
+                self.reply_result(msg, error_info, None)
             else:
-                return 9
+                error_code = E_MOD_PARAM
+                error_info = ErrorInfo(error_code, "params error")
+                self.reply_result(msg, error_info, None)
         elif msg.cmd == "Charge":
             if self.is_simulation_:
-                return 3
+                error_code = E_OK
+                error_info = ErrorInfo(error_code, "")
+                self.reply_result(msg, error_info, None)
             self.goal.target_pose.pose = self.location['X']
             self.goal.target_pose.header.stamp = rospy.Time.now()
-            return self.move_base.send_goal_and_wait(self.goal)
+            error_code = self.move_base.send_goal_and_wait(self.goal)
+            error_info = ErrorInfo(error_code, "Dock in")
+            self.reply_result(msg, error_info, None)
         elif msg.cmd == "Battery":
             if self.is_simulation_:
-                return 3
+                error_code = E_OK
+                error_info = ErrorInfo(error_code, "")
+                self.reply_result(msg, error_info, None)
             percent = ((95*(self.battery - 13.2)) / (16.5 - 14.0)) + 5
             percent = max(min(percent, 100.), 0.)
-            return percent
+            self.reply_result(msg, error_info, percent)
 
         if True == is_has_handle:
             if 0 == error_code:
