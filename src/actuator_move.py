@@ -51,6 +51,17 @@ STATUS_BUSY = 'busy'
 STATUS_ERROR = 'error'
 
 # command description dict
+# Return goal status as bellow:
+# PENDING = 0
+# ACTIVE = 1
+# PREEMPTED = 2
+# SUCCEEDED = 3
+# ABORTED = 4
+# REJECTED = 5
+# PREEMPTING = 6
+# RECALLING = 7
+# RECALLED = 8
+# LOST = 9
 cmd_description_dict = {
     'cmddescribe': {
         'version': '0.0.1',
@@ -66,19 +77,26 @@ cmd_description_dict = {
                     'name': 'goal',
                     'type': 'string',
                     'default': 'X',
-                    'numberlimit': ['X', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+                    'listlimit': ['X', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
                 }
             ],
             'return':{
-                'type': 'boolean'
+                'type': 'int'
             }
         },        
         {
             'cmd': 'Charge',
             'atype': 'motion',
-            'params': [],
+            'params': [
+                {
+                'name': 'percent',
+                'type': 'float',
+                'default': '80.',
+                'numberlimit': [0., 100.]
+                }
+            ],
             'return':{
-                'type': 'boolean'
+                'type': 'int'
             }
         },
         {
@@ -104,6 +122,7 @@ def get_dict_key_value(dict_ins, key, value_type):
 class ActuatorMove(Actuator):
     def __init__(self, name, proxy_name, proxy_ip):
         Actuator.__init__(self, name)
+        self.is_simulation_ = is_simulation
 
         self.data_condition_ = threading.Condition()
         self.enable_timer = True
@@ -123,16 +142,16 @@ class ActuatorMove(Actuator):
         # 在rviz中点击 2D Nav Goal 按键，然后单击地图中一点
         # 在终端中就会看到该点的坐标信息
         self.location = dict()
+        
+        self.location['A'] = Pose(Point(2.832, 10.652, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+        self.location['B'] = Pose(Point(2.840, 11.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+        self.location['C'] = Pose(Point(2.859, 11.380, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
-        self.location['A'] = Pose(Point(0.642, -2.715, 0.000), Quaternion(0.000, 0.000, -0.719, 0.694))
-        self.location['B'] = Pose(Point(0.419, -5.492, 0.000), Quaternion(0.000, 0.000, -0.720, 0.692))
-        self.location['C'] = Pose(Point(-0.312, -8.745, 0.000), Quaternion(0.000, 0.000, -0.721, 0.692))
-        self.location['D'] = Pose(Point(-0.307, -11.476, 0.000), Quaternion(0.000, 0.000, -0.728, 0.684))
-        self.location['E'] = Pose(Point(0.943, -8.384, 0.000), Quaternion(0.000, 0.000, 0.674, 0.737))
-
-        self.location['F'] = Pose(Point(2.832, 10.652, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-        self.location['G'] = Pose(Point(2.840, 11.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-        self.location['H'] = Pose(Point(2.859, 11.380, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+        self.location['D'] = Pose(Point(0.642, -2.715, 0.000), Quaternion(0.000, 0.000, -0.719, 0.694))
+        self.location['E'] = Pose(Point(0.419, -5.492, 0.000), Quaternion(0.000, 0.000, -0.720, 0.692))
+        self.location['F'] = Pose(Point(-0.312, -8.745, 0.000), Quaternion(0.000, 0.000, -0.721, 0.692))
+        self.location['G'] = Pose(Point(-0.307, -11.476, 0.000), Quaternion(0.000, 0.000, -0.728, 0.684))
+        self.location['H'] = Pose(Point(0.943, -8.384, 0.000), Quaternion(0.000, 0.000, 0.674, 0.737))
 
         self.location['X'] = Pose(Point(0.363, -0.067, 0.000), Quaternion(0.000, 0.000, 0.692, 0.721))
 
@@ -196,45 +215,51 @@ class ActuatorMove(Actuator):
             if p0 is None:
                 error_code = E_MOD_PARAM
                 error_info = ErrorInfo(error_code, "params [p0] none")
+            elif self.is_simulation_:
+                return 3
             elif p0 == "A":
                 self.goal.target_pose.pose = self.location['A']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             elif p0 == "B":
                 self.goal.target_pose.pose = self.location['B']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             elif p0 == "C":
                 self.goal.target_pose.pose = self.location['C']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             elif p0 == "D":
                 self.goal.target_pose.pose = self.location['D']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             elif p0 == "E":
                 self.goal.target_pose.pose = self.location['E']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             elif p0 == "F":
                 self.goal.target_pose.pose = self.location['F']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             elif p0 == "G":
                 self.goal.target_pose.pose = self.location['G']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             elif p0 == "H":
                 self.goal.target_pose.pose = self.location['H']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                self.move_base.send_goal(self.goal)
+                return self.move_base.send_goal_and_wait(self.goal)
             else:
-                pass
+                return 9
         elif msg.cmd == "Charge":
+            if self.is_simulation_:
+                return 3
             self.goal.target_pose.pose = self.location['X']
             self.goal.target_pose.header.stamp = rospy.Time.now()
-            self.move_base.send_goal(self.goal)
+            return self.move_base.send_goal_and_wait(self.goal)
         elif msg.cmd == "Battery":
+            if self.is_simulation_:
+                return 3
             percent = ((95*(self.battery - 13.2)) / (16.5 - 14.0)) + 5
             percent = max(min(percent, 100.), 0.)
             return percent

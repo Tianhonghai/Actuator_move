@@ -168,7 +168,7 @@ if __name__ == "__main__":
         proxy_ip = "localhost"
     else:
         proxy_ip = adapter.get_dict_key_value(unit_dict, 'ip', (str, unicode))
-    actuator_move = ActuatorMove(actuator_1_name, proxy_name, proxy_ip)
+    actuator_move = ActuatorMove(actuator_1_name, is_simulation, proxy_name, proxy_ip)
     # register actuator to adapter
     adapter.reg_actuator(actuator_move)
 
