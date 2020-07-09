@@ -193,6 +193,11 @@ class ActuatorMove(Actuator):
             is_has_handle = False
         return is_has_handle
 
+    def debug():
+        self.goal.target_pose.pose = self.location['A']
+        self.goal.target_pose.header.stamp = rospy.Time.now()
+        self.move_base.send_goal_and_wait(self.goal)
+
     # override function
     def async_cmd_handle(self, msg):
         is_has_handle = True
@@ -205,7 +210,7 @@ class ActuatorMove(Actuator):
 
         if msg.cmd == "Go":
             print "Get cmd Go"
-            p0 = get_dict_key_value(msg.params, 'goal', char)
+            p0 = get_dict_key_value(msg.params, 'goal', (str, unicode))
             if p0 is None:
                 error_code = E_MOD_PARAM
                 error_info = ErrorInfo(error_code, "params [p0] none")
@@ -279,7 +284,7 @@ class ActuatorMove(Actuator):
             if self.is_simulation_:
                 error_code = E_OK
                 error_info = ErrorInfo(error_code, "")
-                self.reply_result(msg, error_info, None)
+                self.reply_result(msg, error_info, 60.0)
             percent = ((95*(self.battery - 13.2)) / (16.5 - 14.0)) + 5
             percent = max(min(percent, 100.), 0.)
             self.reply_result(msg, error_info, percent)
