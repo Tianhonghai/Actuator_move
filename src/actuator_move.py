@@ -76,8 +76,8 @@ cmd_description_dict = {
                 {
                     'name': 'goal',
                     'type': 'string',
-                    'default': 'X',
-                    'listlimit': ['X', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+                    'default': 'A',
+                    'listlimit': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
                 }
             ],
         },        
@@ -206,6 +206,7 @@ class ActuatorMove(Actuator):
         print "cmd:", msg.cmd
         print "params:", msg.params
         print ""
+        error_info = ErrorInfo(0, "")
 
 
         if msg.cmd == "Go":
@@ -221,50 +222,66 @@ class ActuatorMove(Actuator):
             elif p0 == "A":
                 self.goal.target_pose.pose = self.location['A']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params A done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params A done error")
+                    log.error("params A done error")
                 self.reply_result(msg, error_info, None)
             elif p0 == "B":
                 self.goal.target_pose.pose = self.location['B']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params B done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params B done error")
+                    log.error("params B done error")
                 self.reply_result(msg, error_info, None)
             elif p0 == "C":
                 self.goal.target_pose.pose = self.location['C']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params C done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params C done error")
+                    log.error("params C done error")
                 self.reply_result(msg, error_info, None)
             elif p0 == "D":
                 self.goal.target_pose.pose = self.location['D']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params D done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params D done error")
+                    log.error("params D done error")
                 self.reply_result(msg, error_info, None)
             elif p0 == "E":
                 self.goal.target_pose.pose = self.location['E']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params E done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params E done error")
+                    log.error("params E done error")
                 self.reply_result(msg, error_info, None)
             elif p0 == "F":
                 self.goal.target_pose.pose = self.location['F']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params F done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params F done error")
+                    log.error("params F done error")
                 self.reply_result(msg, error_info, None)
             elif p0 == "G":
                 self.goal.target_pose.pose = self.location['G']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params G done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params G done error")
+                    log.error("params G done error")
                 self.reply_result(msg, error_info, None)
             elif p0 == "H":
                 self.goal.target_pose.pose = self.location['H']
                 self.goal.target_pose.header.stamp = rospy.Time.now()
-                error_code = self.move_base.send_goal_and_wait(self.goal)
-                error_info = ErrorInfo(error_code, "params H done")
+                if self.move_base.send_goal_and_wait(self.goal) != 3
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "params H done error")
+                    log.error("params H done error")
                 self.reply_result(msg, error_info, None)
             else:
                 error_code = E_MOD_PARAM
@@ -277,8 +294,10 @@ class ActuatorMove(Actuator):
                 self.reply_result(msg, error_info, None)
             self.goal.target_pose.pose = self.location['X']
             self.goal.target_pose.header.stamp = rospy.Time.now()
-            error_code = self.move_base.send_goal_and_wait(self.goal)
-            error_info = ErrorInfo(error_code, "Dock in")
+            if self.move_base.send_goal_and_wait(self.goal) != 3
+                error_code = E_MOD_EXCEPTION
+                error_info = ErrorInfo(error_code, "params X done error")
+                log.error("params X done error")
             self.reply_result(msg, error_info, None)
         elif msg.cmd == "Battery":
             if self.is_simulation_:
