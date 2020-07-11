@@ -176,6 +176,32 @@ class ActuatorMove(Actuator):
         self.percent = ((95*(core.battery / 10. - 13.2)) / (16.5 - 14.0)) + 5
 
 
+    def doneCb(status, result):
+        if 0:
+            print ""
+        elif status == GoalStatus.PENDING:
+            state = 'PENDING'
+        elif status == GoalStatus.ACTIVE:
+            state = 'ACTIVE'
+        elif status == GoalStatus.PREEMPTED:
+            state = 'PREEMPTED'
+        elif status == GoalStatus.SUCCEEDED:
+            state = 'SUCCEEDED'
+        elif status == GoalStatus.ABORTED:
+            state = 'ABORTED'
+        elif status == GoalStatus.REJECTED:
+            state = 'REJECTED'
+        elif status == GoalStatus.PREEMPTING:
+            state = 'PREEMPTING'
+        elif status == GoalStatus.RECALLING:
+            state = 'RECALLING'
+        elif status == GoalStatus.RECALLED:
+            state = 'RECALLED'
+        elif status == GoalStatus.LOST:
+            state = 'LOST'
+        # Print state of action server
+        print "Result - [ActionServer: " + state + "]: " + result.text
+
 
     def spinOnce(self):
         r = rospy.Rate(self.rate)
@@ -242,6 +268,7 @@ class ActuatorMove(Actuator):
             elif p0 == "A":
                 print "Get A"
                 self.goal.target_pose.pose = self.location['A']
+                self.move_base.send_goal(self.goal, done_cb=)
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params A done error")
