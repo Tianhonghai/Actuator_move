@@ -176,7 +176,7 @@ class ActuatorMove(Actuator):
         self.percent = ((95*(core.battery / 10. - 13.2)) / (16.5 - 14.0)) + 5
 
     def activeCb(self):
-        print 'Move_base: Active'
+        print 'Move_base: %s Active' % self.
 
     def doneCb(self, status, result):
         print 'Move_base: Arrived'
@@ -234,15 +234,16 @@ class ActuatorMove(Actuator):
         print ""
         error_info = ErrorInfo(0, "")
 
-        self.goal.target_pose.header.stamp = rospy.Time.now()
-        while not self.move_base.wait_for_server(rospy.Duration(1.0)):
-            if rospy.is_shutdown():
-                return
-            print "Waiting for move_base server..."
-        print "Move_base server connected"
+
 
         if msg.cmd == "go" or msg.cmd == "move":
             print "Get cmd go"
+            self.goal.target_pose.header.stamp = rospy.Time.now()
+            while not self.move_base.wait_for_server(rospy.Duration(1.0)):
+                if rospy.is_shutdown():
+                    return
+                print "Waiting for move_base server..."
+            print "Move_base server connected"
             p0 = get_dict_key_value(msg.params, 'goal', (str, unicode))
             print "p0 is %s" % p0
             if p0 is None:
@@ -337,6 +338,7 @@ class ActuatorMove(Actuator):
             else:
                 # percent = ((95*(self.battery - 13.2)) / (16.5 - 14.0)) + 5
                 value_ret = max(min(self.percent, 100.), 0.)
+                print "Battery is %f percents" % value_ret
         else:
             is_has_handle = False
 
