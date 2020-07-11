@@ -182,6 +182,8 @@ class ActuatorMove(Actuator):
 
     def doneCb(self, status, result):
         print 'Move_base: %s Arrived' % self.goal_code
+        rospy.sleep(5.0)
+        
 
 
     def feedbackCb(self, feedback):
