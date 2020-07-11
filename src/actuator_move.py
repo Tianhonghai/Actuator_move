@@ -230,6 +230,7 @@ class ActuatorMove(Actuator):
         if msg.cmd == "go" or msg.cmd == "move":
             print "Get cmd go"
             p0 = get_dict_key_value(msg.params, 'goal', (str, unicode))
+            print "p0 is %s" % p0
             if p0 is None:
                 error_code = E_MOD_PARAM
                 error_info = ErrorInfo(error_code, "params [p0] none")
