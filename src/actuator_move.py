@@ -183,6 +183,7 @@ class ActuatorMove(Actuator):
 
 
     def feedbackCb(self, feedback):
+        pass
         # Print state of dock_drive module (or node.)
         # rospy.loginfo_once('Move_base : Moving')
 
