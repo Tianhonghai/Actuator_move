@@ -161,6 +161,7 @@ class ActuatorMove(Actuator):
         self.location['X'] = Pose(Point(0.363, -0.067, 0.000), Quaternion(0.000, 0.000, 0.692, 0.721))
 
         # 设定下一个目标点
+        self.goal_code = ''
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = 'map'
 
@@ -177,10 +178,10 @@ class ActuatorMove(Actuator):
         self.percent = max(min(percent, 100.), 0.)
 
     def activeCb(self):
-        print 'Move_base: %s Active'
+        print 'Move_base: %s Active' % self.goal_code
 
     def doneCb(self, status, result):
-        print 'Move_base: Arrived'
+        print 'Move_base: %s Arrived' % self.goal_code
 
 
     def feedbackCb(self, feedback):
@@ -188,7 +189,7 @@ class ActuatorMove(Actuator):
         x2 = feedback.base_position.pose.position.x
         y1 = self.goal.target_pose.pose.position.y
         y2 = feedback.base_position.pose.position.y
-        print "Distance is %f" % ((x1 - x2)**2 + (y1 - y2)**2)**0.5 
+        print "Distance from %s is %f" % (self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5) 
         # Print state of dock_drive module (or node.)
         # rospy.loginfo_once('Move_base : Moving')
 
@@ -245,7 +246,8 @@ class ActuatorMove(Actuator):
                     return
                 print "Waiting for move_base server..."
             print "Move_base server connected"
-            p0 = get_dict_key_value(msg.params, 'goal', (str, unicode))
+            self.goal_code = get_dict_key_value(msg.params, 'goal', (str, unicode))
+            p0 = self.goal_code
             print "p0 is %s" % p0
             if p0 is None:
                 error_code = E_MOD_PARAM
