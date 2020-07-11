@@ -175,7 +175,7 @@ class ActuatorMove(Actuator):
         # self.battery = core.battery / 10.
         self.percent = ((95*(core.battery / 10. - 13.2)) / (16.5 - 14.0)) + 5
 
-    def activeCb():
+    def activeCb(self):
         print 'Move_base: Active'
 
     def doneCb(self, status, result):
