@@ -176,7 +176,7 @@ class ActuatorMove(Actuator):
         self.percent = ((95*(core.battery / 10. - 13.2)) / (16.5 - 14.0)) + 5
 
 
-    def doneCb(status, result):
+    def doneCb(self, status, result):
         if 0:
             print ""
         elif status == GoalStatus.PENDING:
@@ -203,7 +203,7 @@ class ActuatorMove(Actuator):
         print "Result - [Move_base: " + state + "]: " + result.text
 
 
-    def feedbackCb(feedback):
+    def feedbackCb(self, feedback):
         # Print state of dock_drive module (or node.)
         print 'Feedback: [Move_base: ' + feedback.state + ']: ' + feedback.text
 
