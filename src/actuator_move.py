@@ -221,7 +221,7 @@ class ActuatorMove(Actuator):
         error_info = ErrorInfo(0, "")
 
         self.goal.target_pose.header.stamp = rospy.Time.now()
-        while not self.move_base.wait_for_server(rospy.Duration(1.0))
+        while not self.move_base.wait_for_server(rospy.Duration(1.0)):
             if rospy.is_shutdown():
                 return
             print "Waiting for move_base server..."
