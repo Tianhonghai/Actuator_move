@@ -182,9 +182,6 @@ class ActuatorMove(Actuator):
 
     def doneCb(self, status, result):
         print 'Move_base: %s Arrived' % self.goal_code
-        rospy.sleep(5.0)
-        
-
 
     def feedbackCb(self, feedback):
         x1 = self.goal.target_pose.pose.position.x
@@ -267,6 +264,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params A done error")
                     log.error("params A done error")
+                else:
+                    rospy.sleep(5.0)
             elif p0 == "B":
                 print "Get B"
                 self.goal.target_pose.pose = self.location['B']
@@ -275,6 +274,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params B done error")
                     log.error("params B done error")
+                else:
+                    rospy.sleep(5.0)
             elif p0 == "C":
                 print "Get C"
                 self.goal.target_pose.pose = self.location['C']
@@ -291,6 +292,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params D done error")
                     log.error("params D done error")
+                else:
+                    rospy.sleep(5.0)
             elif p0 == "E":
                 print "Get E"
                 self.goal.target_pose.pose = self.location['E']
@@ -299,6 +302,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params E done error")
                     log.error("params E done error")
+                else:
+                    rospy.sleep(5.0)
             elif p0 == "F":
                 print "Get F"
                 self.goal.target_pose.pose = self.location['F']
@@ -307,6 +312,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params F done error")
                     log.error("params F done error")
+                else:
+                    rospy.sleep(5.0)
             elif p0 == "G":
                 print "Get G"
                 self.goal.target_pose.pose = self.location['G']
@@ -315,6 +322,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params G done error")
                     log.error("params G done error")
+                else:
+                    rospy.sleep(5.0)
             elif p0 == "H":
                 print "Get H"
                 self.goal.target_pose.pose = self.location['H']
@@ -323,6 +332,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params H done error")
                     log.error("params H done error")
+                else:
+                    rospy.sleep(5.0)
             else:
                 error_code = E_MOD_PARAM
                 error_info = ErrorInfo(error_code, "params error")
@@ -337,6 +348,8 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params X done error")
                     log.error("params X done error")
+                else:
+                    rospy.sleep(5.0)
         elif msg.cmd == "battery":
             if self.is_simulation_:
                 value_ret = 60.0
