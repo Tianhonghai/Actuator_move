@@ -173,10 +173,11 @@ class ActuatorMove(Actuator):
 
     def battery_callback(self, core):
         # self.battery = core.battery / 10.
-        self.percent = ((95*(core.battery / 10. - 13.2)) / (16.5 - 14.0)) + 5
+        percent = ((95*(core.battery / 10. - 13.2)) / (16.5 - 14.0)) + 5
+        self.percent = max(min(percent, 100.), 0.)
 
     def activeCb(self):
-        print 'Move_base: %s Active' % self.
+        print 'Move_base: %s Active'
 
     def doneCb(self, status, result):
         print 'Move_base: Arrived'
@@ -337,7 +338,7 @@ class ActuatorMove(Actuator):
                 value_ret = 60.0
             else:
                 # percent = ((95*(self.battery - 13.2)) / (16.5 - 14.0)) + 5
-                value_ret = max(min(self.percent, 100.), 0.)
+                value_ret = self.percent
                 print "Battery is %f percents" % value_ret
         else:
             is_has_handle = False
