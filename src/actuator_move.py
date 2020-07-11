@@ -221,7 +221,11 @@ class ActuatorMove(Actuator):
         error_info = ErrorInfo(0, "")
 
         self.goal.target_pose.header.stamp = rospy.Time.now()
-
+        while not self.move_base.wait_for_server(rospy.Duration(1.0))
+            if rospy.is_shutdown():
+                return
+            print "Waiting for move_base server..."
+        print "Move_base server connected"
 
         if msg.cmd == "go" or msg.cmd == "move":
             print "Get cmd go"
@@ -237,7 +241,6 @@ class ActuatorMove(Actuator):
             elif p0 == "A":
                 print "Get A"
                 self.goal.target_pose.pose = self.location['A']
-                # self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params A done error")
@@ -245,7 +248,6 @@ class ActuatorMove(Actuator):
             elif p0 == "B":
                 print "Get B"
                 self.goal.target_pose.pose = self.location['B']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params B done error")
@@ -253,7 +255,6 @@ class ActuatorMove(Actuator):
             elif p0 == "C":
                 print "Get C"
                 self.goal.target_pose.pose = self.location['C']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params C done error")
@@ -261,7 +262,6 @@ class ActuatorMove(Actuator):
             elif p0 == "D":
                 print "Get D"
                 self.goal.target_pose.pose = self.location['D']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params D done error")
@@ -269,7 +269,6 @@ class ActuatorMove(Actuator):
             elif p0 == "E":
                 print "Get E"
                 self.goal.target_pose.pose = self.location['E']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params E done error")
@@ -277,7 +276,6 @@ class ActuatorMove(Actuator):
             elif p0 == "F":
                 print "Get F"
                 self.goal.target_pose.pose = self.location['F']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params F done error")
@@ -285,7 +283,6 @@ class ActuatorMove(Actuator):
             elif p0 == "G":
                 print "Get G"
                 self.goal.target_pose.pose = self.location['G']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params G done error")
@@ -293,7 +290,6 @@ class ActuatorMove(Actuator):
             elif p0 == "H":
                 print "Get H"
                 self.goal.target_pose.pose = self.location['H']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params H done error")
@@ -307,7 +303,6 @@ class ActuatorMove(Actuator):
                 error_info = ErrorInfo(error_code, "")
             else:
                 self.goal.target_pose.pose = self.location['X']
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if self.move_base.send_goal_and_wait(self.goal) != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params X done error")
@@ -339,9 +334,11 @@ class ActuatorMove(Actuator):
     # override function
     def abort_handle(self):
         print "%s: abort_handle ss" % self.name_
+        self.move_base.cancel_goal()
 
     def reset_handle(self):
         print "%s: reset_handle ss" % self.name_
+        self.move_base.cancel_goal()
 
     def get_cmd_list(self):
         return cmd_description_dict
@@ -371,10 +368,5 @@ class ActuatorMove(Actuator):
             status = self.statuscode_
         return status
 
-    # override function
-    def abort_handle(self):
-        print "%s: abort_handle ss" % self.name_
 
-    def reset_handle(self):
-        print "%s: reset_handle ss" % self.name_
 
