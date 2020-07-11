@@ -17,7 +17,7 @@ import rospy
 import actionlib
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, Point, Quaternion, Twist
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal, MoveBaseFeedback, MoveBaseResult
 from random import sample
 from math import pow, sqrt
 abs_file = os.path.abspath(os.path.dirname(__file__))
@@ -175,37 +175,16 @@ class ActuatorMove(Actuator):
         # self.battery = core.battery / 10.
         self.percent = ((95*(core.battery / 10. - 13.2)) / (16.5 - 14.0)) + 5
 
+    def activeCb():
+        print 'Move_base: Active'
 
     def doneCb(self, status, result):
-        if 0:
-            print ""
-        elif status == GoalStatus.PENDING:
-            state = 'PENDING'
-        elif status == GoalStatus.ACTIVE:
-            state = 'ACTIVE'
-        elif status == GoalStatus.PREEMPTED:
-            state = 'PREEMPTED'
-        elif status == GoalStatus.SUCCEEDED:
-            state = 'SUCCEEDED'
-        elif status == GoalStatus.ABORTED:
-            state = 'ABORTED'
-        elif status == GoalStatus.REJECTED:
-            state = 'REJECTED'
-        elif status == GoalStatus.PREEMPTING:
-            state = 'PREEMPTING'
-        elif status == GoalStatus.RECALLING:
-            state = 'RECALLING'
-        elif status == GoalStatus.RECALLED:
-            state = 'RECALLED'
-        elif status == GoalStatus.LOST:
-            state = 'LOST'
-        # Print state of action server
-        print "Result - [Move_base: " + state + "]: " + result.text
+        print 'Move_base: Arrived'
 
 
     def feedbackCb(self, feedback):
         # Print state of dock_drive module (or node.)
-        print 'Feedback: [Move_base: ' + feedback.state + ']: ' + feedback.text
+        print 'Move_base : Moving'
 
     def spinOnce(self):
         r = rospy.Rate(self.rate)
@@ -272,7 +251,7 @@ class ActuatorMove(Actuator):
             elif p0 == "A":
                 print "Get A"
                 self.goal.target_pose.pose = self.location['A']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params A done error")
@@ -280,7 +259,7 @@ class ActuatorMove(Actuator):
             elif p0 == "B":
                 print "Get B"
                 self.goal.target_pose.pose = self.location['B']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params B done error")
@@ -288,7 +267,7 @@ class ActuatorMove(Actuator):
             elif p0 == "C":
                 print "Get C"
                 self.goal.target_pose.pose = self.location['C']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params C done error")
@@ -296,7 +275,7 @@ class ActuatorMove(Actuator):
             elif p0 == "D":
                 print "Get D"
                 self.goal.target_pose.pose = self.location['D']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params D done error")
@@ -304,7 +283,7 @@ class ActuatorMove(Actuator):
             elif p0 == "E":
                 print "Get E"
                 self.goal.target_pose.pose = self.location['E']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params E done error")
@@ -312,7 +291,7 @@ class ActuatorMove(Actuator):
             elif p0 == "F":
                 print "Get F"
                 self.goal.target_pose.pose = self.location['F']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params F done error")
@@ -320,7 +299,7 @@ class ActuatorMove(Actuator):
             elif p0 == "G":
                 print "Get G"
                 self.goal.target_pose.pose = self.location['G']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params G done error")
@@ -328,7 +307,7 @@ class ActuatorMove(Actuator):
             elif p0 == "H":
                 print "Get H"
                 self.goal.target_pose.pose = self.location['H']
-                self.move_base.send_goal(self.goal, done_cb=self.doneCb, feedback_cb=self.feedbackCb)
+                self.move_base.send_goal(self.goal, self.activeCb, self.doneCb, self.feedbackCb)
                 if self.move_base.wait_for_result() != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params H done error")
