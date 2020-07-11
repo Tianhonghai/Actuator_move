@@ -183,7 +183,11 @@ class ActuatorMove(Actuator):
 
 
     def feedbackCb(self, feedback):
-        pass
+        x1 = self.goal.target_pose.pose.position.x
+        x2 = feedback.base_position.pose.position.x
+        y1 = self.goal.target_pose.pose.position.y
+        y2 = feedback.base_position.pose.position.y
+        print "Distance is %f" % ((x1 - x2)**2 + (y1 - y2)**2)**0.5 
         # Print state of dock_drive module (or node.)
         # rospy.loginfo_once('Move_base : Moving')
 
