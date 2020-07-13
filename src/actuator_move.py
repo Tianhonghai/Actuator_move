@@ -10,7 +10,7 @@ import glob
 import collections
 import rospy
 import math
-from kobuki_msgs.msg import SensorState
+from kobuki_msgs.msg import SensorState, AutoDockingAction, AutoDockingGoal, AutoDockingFeedback, AutoDockingResult
 import actionlib
 import roslib
 import rospy
@@ -97,7 +97,7 @@ cmd_description_dict = {
             'atype': 'motion',
             'params': [
                 {
-                'name': 'percent',
+                'name': 'limit',
                 'type': 'float',
                 'default': '80.',
                 'numberlimit': [0., 100.]
@@ -137,7 +137,11 @@ class ActuatorMove(Actuator):
         self.data_condition_ = threading.Condition()
         self.railparams=np.zeros(3,dtype=float)
         self.rail_condition_pub = rospy.Publisher('/rail/position_temp', Float32MultiArray, queue_size=20)
-        self.battery = 0.
+
+        self.battery = 0.0
+
+        self.charge_limit = 0.0
+        self.charge_reset = False
 
 
         # 订阅move_base服务器的消息
@@ -158,12 +162,16 @@ class ActuatorMove(Actuator):
         self.location['G'] = Pose(Point(-0.307, -11.476, 0.000), Quaternion(0.000, 0.000, -0.728, 0.684))
         self.location['H'] = Pose(Point(0.943, -8.384, 0.000), Quaternion(0.000, 0.000, 0.674, 0.737))
 
-        self.location['X'] = Pose(Point(0.363, -0.067, 0.000), Quaternion(0.000, 0.000, 0.692, 0.721))
+        self.location['X'] = Pose(Point(0.370, -0.443, 0.000), Quaternion(0.000, 0.000, 0.704, 0.709))
 
         # 设定下一个目标点
         self.goal_code = ''
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = 'map'
+
+        # 订阅move_base服务器的消息
+        self.auto_docking = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
+        self.goal_docking = AutoDockingGoal()
 
         # connect to proxy
         self.pub_socket = PS_Socket(self.proxy_ip)
@@ -236,7 +244,6 @@ class ActuatorMove(Actuator):
         error_info = ErrorInfo(0, "")
 
 
-
         if msg.cmd == "go" or msg.cmd == "move":
             print "Get cmd go"
             self.goal.target_pose.header.stamp = rospy.Time.now()
@@ -248,6 +255,10 @@ class ActuatorMove(Actuator):
             self.goal_code = get_dict_key_value(msg.params, 'goal', (str, unicode))
             p0 = self.goal_code
             print "p0 is %s" % p0
+            
+            # make sure action server get right state after last move. TODO: lookup if has api in action server 
+            rospy.sleep(1.0)
+
             if p0 is None:
                 error_code = E_MOD_PARAM
                 error_info = ErrorInfo(error_code, "params [p0] none")
@@ -264,8 +275,6 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params A done error")
                     log.error("params A done error")
-                else:
-                    rospy.sleep(5.0)
             elif p0 == "B":
                 print "Get B"
                 self.goal.target_pose.pose = self.location['B']
@@ -274,8 +283,6 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params B done error")
                     log.error("params B done error")
-                else:
-                    rospy.sleep(5.0)
             elif p0 == "C":
                 print "Get C"
                 self.goal.target_pose.pose = self.location['C']
@@ -292,8 +299,6 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params D done error")
                     log.error("params D done error")
-                else:
-                    rospy.sleep(5.0)
             elif p0 == "E":
                 print "Get E"
                 self.goal.target_pose.pose = self.location['E']
@@ -302,8 +307,6 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params E done error")
                     log.error("params E done error")
-                else:
-                    rospy.sleep(5.0)
             elif p0 == "F":
                 print "Get F"
                 self.goal.target_pose.pose = self.location['F']
@@ -312,8 +315,6 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params F done error")
                     log.error("params F done error")
-                else:
-                    rospy.sleep(5.0)
             elif p0 == "G":
                 print "Get G"
                 self.goal.target_pose.pose = self.location['G']
@@ -322,8 +323,6 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params G done error")
                     log.error("params G done error")
-                else:
-                    rospy.sleep(5.0)
             elif p0 == "H":
                 print "Get H"
                 self.goal.target_pose.pose = self.location['H']
@@ -332,29 +331,77 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "params H done error")
                     log.error("params H done error")
-                else:
-                    rospy.sleep(5.0)
             else:
                 error_code = E_MOD_PARAM
                 error_info = ErrorInfo(error_code, "params error")
         elif msg.cmd == "charge":
+            print "Get cmd charge"
+
+            self.charge_limit = get_dict_key_value(msg.params, 'limit', float)
+            p0 = self.goal_code
+            print "charge limit is %s" % self.charge_limit
+
             if self.is_simulation_:
                 error_code = E_OK
                 error_info = ErrorInfo(error_code, "")
+            elif self.charge_limit < self.percent:
+                error_code = E_OK
+                error_info = ErrorInfo(error_code, "")
+                print "Battery percent is higher than limit given, omit charge cmd"
             else:
+                # Navigation to point by laser in front of dock station
+                self.goal.target_pose.header.stamp = rospy.Time.now()
+                while not self.move_base.wait_for_server(rospy.Duration(1.0)):
+                    if rospy.is_shutdown():
+                        return
+                    print "Waiting for move_base server..."
+                print "Move_base server connected"
                 self.goal.target_pose.pose = self.location['X']
                 self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
                 if not self.move_base.wait_for_result():
                     error_code = E_MOD_EXCEPTION
-                    error_info = ErrorInfo(error_code, "params X done error")
-                    log.error("params X done error")
-                else:
-                    rospy.sleep(5.0)
+                    error_info = ErrorInfo(error_code, "charge laser navigation done error")
+                    log.error("charge laser navigation done error")
+                
+                # Navigation by ir to dock station
+                while not self.auto_docking.wait_for_server(rospy.Duration(1.0)):
+                    if rospy.is_shutdown():
+                        return
+                    print "Waiting for dock_drive_action server..."
+                print "Dock_drive_action server connected"
+                self.auto_docking.send_goal(self.goal_docking)
+                if not self.auto_docking.wait_for_result():
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "charge ir navigation done error")
+                    log.error("Charge Ir navigation done error in charge cmd")
+                
+                # Block 1. when percent is lower than limit. 2. No reset cmd 
+                while self.percent < self.charge_limit and not self.charge_reset:
+                    print "Charging, percent is %f" % self.percent
+                    time.sleep(1.0)
+                self.charge_reset = False
+                print "Charge done, moving to standby"
+
+                # After charge done, move robot a little behind and turn 180 degree to standby
+                self.goal.target_pose.header.stamp = rospy.Time.now()
+                while not self.move_base.wait_for_server(rospy.Duration(1.0)):
+                    if rospy.is_shutdown():
+                        return
+                    print "Waiting for move_base server..."
+                print "Move_base server connected"
+                self.goal.target_pose.pose = Pose(
+                                                Point(0.338, -0.782, 0.000),
+                                                Quaternion(0.000, 0.000, -0.705, 0.708))
+                self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                if not self.move_base.wait_for_result():
+                    error_code = E_MOD_EXCEPTION
+                    error_info = ErrorInfo(error_code, "charge laser navigation done error")
+                    log.error("Laser navigation done error in charge cmd")
+
         elif msg.cmd == "battery":
             if self.is_simulation_:
                 value_ret = 60.0
             else:
-                # percent = ((95*(self.battery - 13.2)) / (16.5 - 14.0)) + 5
                 value_ret = self.percent
                 print "Battery is %f percents" % value_ret
         else:
@@ -383,6 +430,7 @@ class ActuatorMove(Actuator):
     def reset_handle(self):
         print "%s: reset_handle ss" % self.name_
         self.move_base.cancel_goal()
+        self.charge_reset = True
 
     def get_cmd_list(self):
         return cmd_description_dict
@@ -411,6 +459,3 @@ class ActuatorMove(Actuator):
         with self.data_condition_:
             status = self.statuscode_
         return status
-
-
-
