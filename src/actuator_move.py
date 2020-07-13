@@ -443,46 +443,46 @@ class ActuatorMove(Actuator):
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "charge laser navigation done error")
                     log.error("charge laser navigation done error")
-                
-                # Navigation by ir to dock station
-                while not self.auto_docking.wait_for_server(rospy.Duration(1.0)):
-                    if rospy.is_shutdown():
-                        return
-                    print "Waiting for dock_drive_action server..."
-                print "Dock_drive_action server connected"
-                self.auto_docking.send_goal(self.goal_docking)
-                if not self.auto_docking.wait_for_result():
-                    error_code = E_MOD_EXCEPTION
-                    error_info = ErrorInfo(error_code, "charge ir navigation done error")
-                    log.error("Charge Ir navigation done error in charge cmd")
-                
-                # To diff stopping charge from 'reset/abort handle, and charged to limit' or 'get new goal in cmd go'
-                self.goal_code = ''
-
-                # Block 1. when percent is lower than limit. 2. No reset cmd 
-                while self.percent < self.charge_limit and not self.charge_reset:
-                    print "Charging, percent is %f" % self.percent
-                    time.sleep(1.0)
-                self.charge_reset = False
-
-                if self.goal_code == '':
-                    print "Charge done, moving to standby"
-
-                    # After charge done, move robot a little behind and turn 180 degree to standby
-                    self.goal.target_pose.header.stamp = rospy.Time.now()
-                    while not self.move_base.wait_for_server(rospy.Duration(1.0)):
+                else:
+                    # Navigation by ir to dock station
+                    while not self.auto_docking.wait_for_server(rospy.Duration(1.0)):
                         if rospy.is_shutdown():
                             return
-                        print "Waiting for move_base server..."
-                    print "Move_base server connected"
-                    self.goal.target_pose.pose = Pose(
-                                                    Point(0.338, -0.782, 0.000),
-                                                    Quaternion(0.000, 0.000, -0.705, 0.708))
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
+                        print "Waiting for dock_drive_action server..."
+                    print "Dock_drive_action server connected"
+                    self.auto_docking.send_goal(self.goal_docking)
+                    if not self.auto_docking.wait_for_result():
                         error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "charge laser navigation done error")
-                        log.error("Laser navigation done error in charge cmd")
+                        error_info = ErrorInfo(error_code, "charge ir navigation done error")
+                        log.error("Charge Ir navigation done error in charge cmd")
+                    else:
+                        # To diff stopping charge from 'reset/abort handle, and charged to limit' or 'get new goal in cmd go'
+                        self.goal_code = ''
+
+                        # Block 1. when percent is lower than limit. 2. No reset cmd 
+                        while self.percent < self.charge_limit and not self.charge_reset:
+                            print "Charging, percent is %f" % self.percent
+                            time.sleep(1.0)
+                        self.charge_reset = False
+
+                        if self.goal_code == '':
+                            print "Charge done, moving to standby"
+
+                            # After charge done, move robot a little behind and turn 180 degree to standby
+                            self.goal.target_pose.header.stamp = rospy.Time.now()
+                            while not self.move_base.wait_for_server(rospy.Duration(1.0)):
+                                if rospy.is_shutdown():
+                                    return
+                                print "Waiting for move_base server..."
+                            print "Move_base server connected"
+                            self.goal.target_pose.pose = Pose(
+                                                            Point(0.338, -0.782, 0.000),
+                                                            Quaternion(0.000, 0.000, -0.705, 0.708))
+                            self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                            if not self.move_base.wait_for_result():
+                                error_code = E_MOD_EXCEPTION
+                                error_info = ErrorInfo(error_code, "charge laser navigation done error")
+                                log.error("Laser navigation done error in charge cmd")
 
         elif msg.cmd == "battery":
             if self.is_simulation_:
