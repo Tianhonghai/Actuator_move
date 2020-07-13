@@ -242,9 +242,10 @@ class ActuatorMove(Actuator):
 
         if msg.cmd == "go" or msg.cmd == "move":
             print "Get cmd go"
-            if self.percent < 30.0:
+            # No need to judge battery in new strategy, just keep it for interface. It is judged in project
+            if self.percent < 0.0:
                 error_code = E_MOD_STATUS
-                print "Battery is low than 30%, omit cmd go"
+                print "Battery is low, omit cmd go"
             else:
                 self.charge_reset = True
                 self.goal.target_pose.header.stamp = rospy.Time.now()
