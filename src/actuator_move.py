@@ -261,7 +261,7 @@ class ActuatorMove(Actuator):
                 rospy.sleep(1.0)
 
 
-                elif p0 is None:
+                if p0 is None:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params [p0] none")
                 elif self.is_simulation_:
