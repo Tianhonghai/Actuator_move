@@ -148,17 +148,34 @@ class ActuatorMove(Actuator):
 
         self.location = dict()
 
-        self.location['A'] = Pose(Point(2.832, 10.652, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-        self.location['B'] = Pose(Point(2.840, 11.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-        self.location['C'] = Pose(Point(2.859, 11.380, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+        self.location['Z'] = Pose(Point(2.832, 10.652, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+        self.location['Y'] = Pose(Point(2.840, 11.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+        self.location['X'] = Pose(Point(2.859, 11.380, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
-        self.location['D'] = Pose(Point(0.642, -2.715, 0.000), Quaternion(0.000, 0.000, -0.719, 0.694))
-        self.location['E'] = Pose(Point(0.419, -5.492, 0.000), Quaternion(0.000, 0.000, -0.720, 0.692))
-        self.location['F'] = Pose(Point(-0.312, -8.745, 0.000), Quaternion(0.000, 0.000, -0.721, 0.692))
-        self.location['G'] = Pose(Point(-0.307, -11.476, 0.000), Quaternion(0.000, 0.000, -0.728, 0.684))
-        self.location['H'] = Pose(Point(0.943, -8.384, 0.000), Quaternion(0.000, 0.000, 0.674, 0.737))
+        self.location['W'] = Pose(Point(0.370, -0.443, 0.000), Quaternion(0.000, 0.000, 0.704, 0.709))
 
-        self.location['X'] = Pose(Point(0.370, -0.443, 0.000), Quaternion(0.000, 0.000, 0.704, 0.709))
+        self.location['C'] = Pose(
+            Point(0.802, 2.211, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+        self.location['D'] = Pose(
+            Point(0.070, -0.928, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+        self.location['E'] = Pose(
+            Point(-0.277, -4.029, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+        self.location['F'] = Pose(
+            Point(-0.360, -7.037, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+        self.location['G'] = Pose(
+            Point(-0.811, -9.833, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+        self.location['H'] = Pose(
+            Point(-1.188, -12.653, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+        self.location['B3'] = Pose(
+            Point(6.335, -10.473, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+        self.location['B2'] = Pose(
+            Point(3.883, -10.153, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+        self.location['B1'] = Pose(
+            Point(1.754, -10.396, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+        self.location['B'] = Pose(
+            Point(1.467, -7.104, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+        self.location['A'] = Pose(
+            Point(1.795, -3.894, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
         self.goal_code = ''
         self.goal = MoveBaseGoal()
@@ -247,7 +264,6 @@ class ActuatorMove(Actuator):
                 error_code = E_MOD_STATUS
                 print "Battery is low, omit cmd go"
             else:
-                self.charge_reset = True
                 self.goal.target_pose.header.stamp = rospy.Time.now()
                 while not self.move_base.wait_for_server(rospy.Duration(1.0)):
                     if rospy.is_shutdown():
@@ -257,6 +273,7 @@ class ActuatorMove(Actuator):
                 self.goal_code = get_dict_key_value(msg.params, 'goal', (str, unicode))
                 p0 = self.goal_code
                 print "Param parsed is %s" % p0
+                self.charge_reset = True
                 
                 # make sure action server get right state after last move. TODO: lookup if has api in action server 
                 rospy.sleep(1.0)
@@ -284,6 +301,33 @@ class ActuatorMove(Actuator):
                         error_code = E_MOD_EXCEPTION
                         error_info = ErrorInfo(error_code, "params B done error")
                         log.error("params B done error")
+                elif p0 == "B1":
+                    print "Get B1"
+                    self.goal.target_pose.pose = self.location['B1']
+                    self.move_base.send_goal(
+                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                    if not self.move_base.wait_for_result():
+                        error_code = E_MOD_EXCEPTION
+                        error_info = ErrorInfo(error_code, "params B1 done error")
+                        log.error("params B1 done error")
+                elif p0 == "B2":
+                    print "Get B2"
+                    self.goal.target_pose.pose = self.location['B2']
+                    self.move_base.send_goal(
+                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                    if not self.move_base.wait_for_result():
+                        error_code = E_MOD_EXCEPTION
+                        error_info = ErrorInfo(error_code, "params B2 done error")
+                        log.error("params B2 done error")
+                elif p0 == "B3":
+                    print "Get B3"
+                    self.goal.target_pose.pose = self.location['B3']
+                    self.move_base.send_goal(
+                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                    if not self.move_base.wait_for_result():
+                        error_code = E_MOD_EXCEPTION
+                        error_info = ErrorInfo(error_code, "params B3 done error")
+                        log.error("params B3 done error")
                 elif p0 == "C":
                     print "Get C"
                     self.goal.target_pose.pose = self.location['C']
@@ -332,12 +376,48 @@ class ActuatorMove(Actuator):
                         error_code = E_MOD_EXCEPTION
                         error_info = ErrorInfo(error_code, "params H done error")
                         log.error("params H done error")
+                elif p0 == "W":
+                    print "Get W"
+                    self.goal.target_pose.pose = self.location['W']
+                    self.move_base.send_goal(
+                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                    if not self.move_base.wait_for_result():
+                        error_code = E_MOD_EXCEPTION
+                        error_info = ErrorInfo(error_code, "params W done error")
+                        log.error("params W done error")
+                elif p0 == "X":
+                    print "Get X"
+                    self.goal.target_pose.pose = self.location['X']
+                    self.move_base.send_goal(
+                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                    if not self.move_base.wait_for_result():
+                        error_code = E_MOD_EXCEPTION
+                        error_info = ErrorInfo(error_code, "params X done error")
+                        log.error("params X done error")
+                elif p0 == "Y":
+                    print "Get Y"
+                    self.goal.target_pose.pose = self.location['Y']
+                    self.move_base.send_goal(
+                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                    if not self.move_base.wait_for_result():
+                        error_code = E_MOD_EXCEPTION
+                        error_info = ErrorInfo(error_code, "params Y done error")
+                        log.error("params Y done error")
+                elif p0 == "Z":
+                    print "Get Z"
+                    self.goal.target_pose.pose = self.location['Z']
+                    self.move_base.send_goal(
+                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                    if not self.move_base.wait_for_result():
+                        error_code = E_MOD_EXCEPTION
+                        error_info = ErrorInfo(error_code, "params Z done error")
+                        log.error("params Z done error")
                 else:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params error")
         elif msg.cmd == "charge":
             print "Get cmd charge"
-            self.goal_code = 'X'
+            self.goal_code = 'W'
             self.charge_reset = False
             self.charge_limit = get_dict_key_value(msg.params, 'percent', float)
             print "charge limit is %s" % self.charge_limit
@@ -357,7 +437,7 @@ class ActuatorMove(Actuator):
                         return
                     print "Waiting for move_base server..."
                 print "Move_base server connected"
-                self.goal.target_pose.pose = self.location['X']
+                self.goal.target_pose.pose = self.location['W']
                 self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
                 if not self.move_base.wait_for_result():
                     error_code = E_MOD_EXCEPTION
