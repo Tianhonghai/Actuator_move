@@ -254,7 +254,7 @@ class ActuatorMove(Actuator):
             print "Move_base server connected"
             self.goal_code = get_dict_key_value(msg.params, 'goal', (str, unicode))
             p0 = self.goal_code
-            print "p0 is %s" % p0
+            print "Param parsed is %s" % p0
             
             # make sure action server get right state after last move. TODO: lookup if has api in action server 
             rospy.sleep(1.0)
@@ -336,9 +336,9 @@ class ActuatorMove(Actuator):
                 error_info = ErrorInfo(error_code, "params error")
         elif msg.cmd == "charge":
             print "Get cmd charge"
-
+            self.goal_code = 'X'
+            self.charge_reset = False
             self.charge_limit = get_dict_key_value(msg.params, 'limit', float)
-            p0 = self.goal_code
             print "charge limit is %s" % self.charge_limit
 
             if self.is_simulation_:
@@ -426,6 +426,7 @@ class ActuatorMove(Actuator):
     def abort_handle(self):
         print "%s: abort_handle ss" % self.name_
         self.move_base.cancel_goal()
+        self.charge_reset = True
 
     def reset_handle(self):
         print "%s: reset_handle ss" % self.name_
