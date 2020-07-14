@@ -140,6 +140,7 @@ class ActuatorMove(Actuator):
         self.rail_condition_pub = rospy.Publisher('/rail/position_temp', Float32MultiArray, queue_size=20)
 
         self.battery = 0.0
+        self.percent = 0.0
 
         self.charge_limit = 0.0
         self.charge_reset = False
@@ -209,7 +210,7 @@ class ActuatorMove(Actuator):
         x2 = feedback.base_position.pose.position.x
         y1 = self.goal.target_pose.pose.position.y
         y2 = feedback.base_position.pose.position.y
-        print "Distance from %s is %f" % (self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5) 
+        print "Distance from %s is %f" % (self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5)
         # Print state of dock_drive module (or node.)
         # rospy.loginfo_once('Move_base : Moving')
 
@@ -260,12 +261,16 @@ class ActuatorMove(Actuator):
 
         if msg.cmd == "go" or msg.cmd == "move":
             print "Get cmd go"
+
+            if self.is_simulation_:
+                error_code = E_OK
+                error_info = ErrorInfo(error_code, "")
+            
             # No need to judge battery in new strategy, just keep it for interface. It is judged in project
-            if self.percent < 0.0:
+            elif self.percent < 0.0:
                 error_code = E_MOD_STATUS
                 print "Battery is low, omit cmd go"
             else:
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 while not self.move_base.wait_for_server(rospy.Duration(1.0)):
                     if rospy.is_shutdown():
                         return
@@ -275,17 +280,14 @@ class ActuatorMove(Actuator):
                 p0 = self.goal_code
                 print "Param parsed is %s" % p0
                 self.charge_reset = True
-                
-                # make sure action server get right state after last move. TODO: lookup if has api in action server 
+
+                # make sure action server get right state after last move. TODO: lookup if has api in action server
                 rospy.sleep(1.0)
 
-
+                self.goal.target_pose.header.stamp = rospy.Time.now()
                 if p0 is None:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params [p0] none")
-                elif self.is_simulation_:
-                    error_code = E_OK
-                    error_info = ErrorInfo(error_code, "")
                 elif p0 == "A":
                     print "Get A"
                     self.goal.target_pose.pose = self.location['A']
@@ -433,12 +435,12 @@ class ActuatorMove(Actuator):
             else:
                 # Navigation to point by laser in front of dock station
                 time.sleep(1.0)
-                self.goal.target_pose.header.stamp = rospy.Time.now()
                 while not self.move_base.wait_for_server(rospy.Duration(1.0)):
                     if rospy.is_shutdown():
                         return
                     print "Waiting for move_base server..."
                 print "Move_base server connected"
+                self.goal.target_pose.header.stamp = rospy.Time.now()
                 self.goal.target_pose.pose = self.location['W']
                 self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
                 if not self.move_base.wait_for_result():
@@ -461,7 +463,7 @@ class ActuatorMove(Actuator):
                         # To diff stopping charge from 'reset/abort handle, and charged to limit' or 'get new goal in cmd go'
                         self.goal_code = ''
 
-                        # Block 1. when percent is lower than limit. 2. No reset cmd 
+                        # Block 1. when percent is lower than limit. 2. No reset cmd
                         while self.percent < self.charge_limit and not self.charge_reset:
                             print "Charging, percent is %f" % self.percent
                             time.sleep(1.0)
