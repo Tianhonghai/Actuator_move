@@ -99,8 +99,9 @@ cmd_description_dict = {
                 {
                 'name': 'percent',
                 'type': 'float',
-                'default': '80.',
-                'numberlimit': [0., 100.]
+                'default': 80.0,
+                'numberlimit': [0.0, 100.0],
+                'unit': '%'
                 }
             ],
         },
@@ -419,7 +420,7 @@ class ActuatorMove(Actuator):
             print "Get cmd charge"
             self.goal_code = 'W'
             self.charge_reset = False
-            self.charge_limit = get_dict_key_value(msg.params, 'percent', float)
+            self.charge_limit = get_dict_key_value(msg.params, 'percent', (int,float))
             print "charge limit is %s" % self.charge_limit
 
             if self.is_simulation_:
@@ -431,6 +432,7 @@ class ActuatorMove(Actuator):
                 print "Battery percent is higher than limit given, omit charge cmd"
             else:
                 # Navigation to point by laser in front of dock station
+                time.sleep(1.0)
                 self.goal.target_pose.header.stamp = rospy.Time.now()
                 while not self.move_base.wait_for_server(rospy.Duration(1.0)):
                     if rospy.is_shutdown():
