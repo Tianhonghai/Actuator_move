@@ -88,7 +88,7 @@ cmd_description_dict = {
                     'name': 'goal',
                     'type': 'string',
                     'default': 'A',
-                    'listlimit': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+                    'listlimit': ['A', 'B', 'B1', 'B2', 'B3', 'C', 'D', 'E', 'F', 'G', 'H', 'X', 'Y', 'Z']
                 }
             ],
         },
