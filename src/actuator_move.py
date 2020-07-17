@@ -137,7 +137,6 @@ class ActuatorMove(Actuator):
         self.statuscode_ = E_OK
         self.data_condition_ = threading.Condition()
         self.railparams=np.zeros(3,dtype=float)
-        self.rail_condition_pub = rospy.Publisher('/rail/position_temp', Float32MultiArray, queue_size=20)
 
         self.battery = 0.0
         self.percent = 0.0
@@ -145,53 +144,56 @@ class ActuatorMove(Actuator):
         self.charge_limit = 0.0
         self.charge_reset = False
 
-        # Set move_base client
-        self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
 
-        self.location = dict()
+        if not self.is_simulation_:
+            self.location = dict()
 
-        self.location['Z'] = Pose(Point(2.832, 10.652, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-        self.location['Y'] = Pose(Point(2.840, 11.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-        self.location['X'] = Pose(Point(2.859, 11.380, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+            self.location['Z'] = Pose(Point(2.832, 10.652, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+            self.location['Y'] = Pose(Point(2.840, 11.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+            self.location['X'] = Pose(Point(2.859, 11.380, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
-        self.location['W'] = Pose(Point(0.370, -0.443, 0.000), Quaternion(0.000, 0.000, 0.704, 0.709))
+            self.location['W'] = Pose(Point(0.370, -0.443, 0.000), Quaternion(0.000, 0.000, 0.704, 0.709))
 
-        self.location['C'] = Pose(
-            Point(0.802, 2.211, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
-        self.location['D'] = Pose(
-            Point(0.070, -0.928, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
-        self.location['E'] = Pose(
-            Point(-0.277, -4.029, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
-        self.location['F'] = Pose(
-            Point(-0.360, -7.037, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
-        self.location['G'] = Pose(
-            Point(-0.811, -9.833, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
-        self.location['H'] = Pose(
-            Point(-1.188, -12.653, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
-        self.location['B3'] = Pose(
-            Point(6.335, -10.473, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
-        self.location['B2'] = Pose(
-            Point(3.883, -10.153, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
-        self.location['B1'] = Pose(
-            Point(1.754, -10.396, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
-        self.location['B'] = Pose(
-            Point(1.467, -7.104, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-        self.location['A'] = Pose(
-            Point(1.795, -3.894, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+            self.location['C'] = Pose(
+                Point(0.802, 2.211, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+            self.location['D'] = Pose(
+                Point(0.070, -0.928, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+            self.location['E'] = Pose(
+                Point(-0.277, -4.029, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+            self.location['F'] = Pose(
+                Point(-0.360, -7.037, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+            self.location['G'] = Pose(
+                Point(-0.811, -9.833, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+            self.location['H'] = Pose(
+                Point(-1.188, -12.653, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+            self.location['B3'] = Pose(
+                Point(6.335, -10.473, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+            self.location['B2'] = Pose(
+                Point(3.883, -10.153, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+            self.location['B1'] = Pose(
+                Point(1.754, -10.396, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+            self.location['B'] = Pose(
+                Point(1.467, -7.104, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+            self.location['A'] = Pose(
+                Point(1.795, -3.894, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
-        self.goal_code = ''
-        self.goal = MoveBaseGoal()
-        self.goal.target_pose.header.frame_id = 'map'
+        
+            # Set move_base client
+            self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
+            self.goal_code = ''
+            self.goal = MoveBaseGoal()
+            self.goal.target_pose.header.frame_id = 'map'
 
-        # Set dock_drive_action
-        self.auto_docking = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
-        self.goal_docking = AutoDockingGoal()
+            # Set dock_drive_action
+            self.auto_docking = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
+            self.goal_docking = AutoDockingGoal()
+            self.center_pose_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.battery_callback)
+
 
         # connect to proxy
         self.pub_socket = PS_Socket(self.proxy_ip)
         self.sub_socket = PS_Socket(self.proxy_ip, self.sub_callback, self)
 
-        self.center_pose_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.battery_callback)
         self.rate = 20
 
     def battery_callback(self, core):
@@ -515,13 +517,15 @@ class ActuatorMove(Actuator):
     # override function
     def abort_handle(self):
         print "%s: abort_handle ss" % self.name_
-        self.move_base.cancel_goal()
         self.charge_reset = True
+        if not self.is_simulation_:
+            self.move_base.cancel_goal()
 
     def reset_handle(self):
         print "%s: reset_handle ss" % self.name_
-        self.move_base.cancel_goal()
         self.charge_reset = True
+        if not self.is_simulation_:
+            self.move_base.cancel_goal()
 
     def get_cmd_list(self):
         return cmd_description_dict
@@ -536,6 +540,7 @@ class ActuatorMove(Actuator):
     def set_status(self, status):
         with self.data_condition_:
             self.status_ = status
+        # TODO idle
 
     def get_status(self):
         with self.data_condition_:
