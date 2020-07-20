@@ -442,7 +442,7 @@ class ActuatorMove(Actuator):
                 #         error_code = E_MOD_EXCEPTION
                 #         error_info = ErrorInfo(error_code, "params Z done error")
                 #         log.error("params Z done error")
-                elif p0 in ['A', 'B', 'B1', 'B2', 'B3', 'C', 'D', 'E', 'F', 'G', 'H', 'X', 'Y', 'Z']
+                elif p0 in ['A', 'B', 'B1', 'B2', 'B3', 'C', 'D', 'E', 'F', 'G', 'H', 'X', 'Y', 'Z']:
                     log.info("Get {}".format(p0))
                     self.goal.target_pose.pose = self.location[p0]
                     self.move_base.send_goal(
