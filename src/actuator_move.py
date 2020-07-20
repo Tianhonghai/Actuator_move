@@ -148,34 +148,44 @@ class ActuatorMove(Actuator):
         if not self.is_simulation_:
             self.location = dict()
 
-            self.location['Z'] = Pose(Point(2.832, 10.652, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-            self.location['Y'] = Pose(Point(2.840, 11.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
-            self.location['X'] = Pose(Point(2.859, 11.380, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+            self.location['Z'] = Pose(Point( 11.814, -1.608, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
+            self.location['Y'] = Pose(Point(11.454, -1.575, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
+            self.location['X'] = Pose(Point(11.083, -1.586, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
 
-            self.location['W'] = Pose(Point(0.370, -0.443, 0.000), Quaternion(0.000, 0.000, 0.704, 0.709))
+            self.location['W'] = Pose(Point(-0.872, -0.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
             self.location['C'] = Pose(
-                Point(0.802, 2.211, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+                Point(2.284, -0.332, 0.000), Quaternion(0.000, 0.000, 0.703, 0.710))
+
             self.location['D'] = Pose(
-                Point(0.070, -0.928, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+                Point(-0.893, 0.202, 0.000), Quaternion(0.000, 0.000, 0.703, 0.710))
+
             self.location['E'] = Pose(
-                Point(-0.277, -4.029, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+                Point(-4.003, 0.004, 0.000), Quaternion(0.000, 0.000, 0.703, 0.710))
+
             self.location['F'] = Pose(
-                Point(-0.360, -7.037, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+                Point(-6.914,  0.191, 0.000), Quaternion(0.000, 0.000, 0.703, 0.710))
+
             self.location['G'] = Pose(
-                Point(-0.811, -9.833, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+                Point(-9.889, 0.416, 0.000), Quaternion(0.000, 0.000, 0.703, 0.710))
+
             self.location['H'] = Pose(
-                Point(-1.188, -12.653, 0.000), Quaternion(0.000, 0.000, 1.000, 0.000))
+                Point(-12.694,  0.125, 0.000), Quaternion(0.000, 0.000, 0.703, 0.710))
+
             self.location['B3'] = Pose(
-                Point(6.335, -10.473, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+                Point(-9.721, -7.556, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+
             self.location['B2'] = Pose(
-                Point(3.883, -10.153, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+                Point(-10.183, -5.306, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+
             self.location['B1'] = Pose(
-                Point(1.754, -10.396, 0.000), Quaternion(0.000, 0.000, 0.708, 0.705))
+                Point(-9.958, -2.205, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+
             self.location['B'] = Pose(
-                Point(1.467, -7.104, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+                Point(-6.639, -1.678, 0.000), Quaternion(0.000, 0.000, -0.706, 0.707))
+
             self.location['A'] = Pose(
-                Point(1.795, -3.894, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+                Point(-3.642, -1.826, 0.000), Quaternion(0.000, 0.000, -0.706, 0.707))
 
         
             # Set move_base client
@@ -213,6 +223,7 @@ class ActuatorMove(Actuator):
         y1 = self.goal.target_pose.pose.position.y
         y2 = feedback.base_position.pose.position.y
         print "Distance from %s is %f" % (self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5)
+        log.info("Distance from {} is {}" .format(self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5))
         # Print state of dock_drive module (or node.)
         # rospy.loginfo_once('Move_base : Moving')
 
@@ -482,8 +493,8 @@ class ActuatorMove(Actuator):
                                 print "Waiting for move_base server..."
                             print "Move_base server connected"
                             self.goal.target_pose.pose = Pose(
-                                                            Point(0.338, -0.782, 0.000),
-                                                            Quaternion(0.000, 0.000, -0.705, 0.708))
+                                Point(-0.591, -0.074, 0.000),
+                                Quaternion(0.000, 0.000, 1.000, 0.000))
                             self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
                             if not self.move_base.wait_for_result():
                                 error_code = E_MOD_EXCEPTION
