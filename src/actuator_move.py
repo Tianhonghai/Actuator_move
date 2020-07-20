@@ -15,6 +15,7 @@ import actionlib
 import roslib
 import rospy
 import actionlib
+import tf
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, Point, Quaternion, Twist
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal, MoveBaseFeedback, MoveBaseResult
@@ -198,6 +199,8 @@ class ActuatorMove(Actuator):
             self.auto_docking = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
             self.goal_docking = AutoDockingGoal()
             self.center_pose_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.battery_callback)
+
+            self.tf_listener = tf.TransformListener()
 
 
         # connect to proxy
@@ -550,8 +553,12 @@ class ActuatorMove(Actuator):
 
     def set_status(self, status):
         with self.data_condition_:
+            if not self.is_simulation_:
+                while not self.tf_listener.canTransform('map', 'base_footprint', rospy.Time(0.0)):
+                    log.info("Waiting for location")
+                    time.sleep(1.0)
+            log.info("Locate successefully, robot is in idle")
             self.status_ = status
-        # TODO idle
 
     def get_status(self):
         with self.data_condition_:
