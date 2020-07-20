@@ -227,20 +227,19 @@ class ActuatorMove(Actuator):
         self.percent = max(min(percent, 100.), 0.)
 
     def activeCb(self):
-        print 'Move_base: %s Active' % self.goal_code
+        log.info('Move_base: {} Active' .format(self.goal_code))
 
     def doneCb(self, status, result):
-        print 'Move_base: %s Arrived' % self.goal_code
+        log.info('Move_base: {} Arrived'.format(self.goal_code))
 
     def feedbackCb(self, feedback):
         x1 = self.goal.target_pose.pose.position.x
         x2 = feedback.base_position.pose.position.x
         y1 = self.goal.target_pose.pose.position.y
         y2 = feedback.base_position.pose.position.y
-        print "Distance from %s is %f" % (self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5)
+        # print "Distance from %s is %f" % (self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5)
         log.info("Distance from {} is {}" .format(self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5))
         # Print state of dock_drive module (or node.)
-        # rospy.loginfo_once('Move_base : Moving')
 
     def spinOnce(self):
         r = rospy.Rate(self.rate)
@@ -288,7 +287,7 @@ class ActuatorMove(Actuator):
 
 
         if msg.cmd == "go" or msg.cmd == "move":
-            print "Get cmd go"
+            log.info("Get cmd go")
 
             if self.is_simulation_:
                 error_code = E_OK
@@ -297,16 +296,16 @@ class ActuatorMove(Actuator):
             # No need to judge battery in new strategy, just keep it for interface. It is judged in project
             elif self.percent < 0.0:
                 error_code = E_MOD_STATUS
-                print "Battery is low, omit cmd go"
+                log.info("Battery is low, omit cmd go")
             else:
                 while not self.move_base.wait_for_server(rospy.Duration(1.0)):
                     if rospy.is_shutdown():
                         return
-                    print "Waiting for move_base server..."
-                print "Move_base server connected"
+                    log.info("Waiting for move_base server...")
+                log.info("Move_base server connected")
                 self.goal_code = get_dict_key_value(msg.params, 'goal', (str, unicode))
                 p0 = self.goal_code
-                print "Param parsed is %s" % p0
+                log.info("Param parsed is {}".format(p0))
                 self.charge_reset = True
 
                 # make sure action server get right state after last move. TODO: lookup if has api in action server
@@ -316,142 +315,151 @@ class ActuatorMove(Actuator):
                 if p0 is None:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params [p0] none")
-                elif p0 == "A":
-                    print "Get A"
-                    self.goal.target_pose.pose = self.location['A']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params A done error")
-                        log.error("params A done error")
-                elif p0 == "B":
-                    print "Get B"
-                    self.goal.target_pose.pose = self.location['B']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params B done error")
-                        log.error("params B done error")
-                elif p0 == "B1":
-                    print "Get B1"
-                    self.goal.target_pose.pose = self.location['B1']
+                # elif p0 == "A":
+                #     log.info("Get A")
+                #     self.goal.target_pose.pose = self.location['A']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params A done error")
+                #         log.error("params A done error")
+                # elif p0 == "B":
+                #     log.info("Get B")
+                #     self.goal.target_pose.pose = self.location['B']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params B done error")
+                #         log.error("params B done error")
+                # elif p0 == "B1":
+                #     log.info( "Get B1")
+                #     self.goal.target_pose.pose = self.location['B1']
+                #     self.move_base.send_goal(
+                #         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params B1 done error")
+                #         log.error("params B1 done error")
+                # elif p0 == "B2":
+                #     log.info("Get B2")
+                #     self.goal.target_pose.pose = self.location['B2']
+                #     self.move_base.send_goal(
+                #         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params B2 done error")
+                #         log.error("params B2 done error")
+                # elif p0 == "B3":
+                #     log.info("Get B3")
+                #     self.goal.target_pose.pose = self.location['B3']
+                #     self.move_base.send_goal(
+                #         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params B3 done error")
+                #         log.error("params B3 done error")
+                # elif p0 == "C":
+                #     log.info("Get C")
+                #     self.goal.target_pose.pose = self.location['C']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params C done error")
+                #         log.error("params C done error")
+                # elif p0 == "D":
+                #     log.info("Get D")
+                #     self.goal.target_pose.pose = self.location['D']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params D done error")
+                #         log.error("params D done error")
+                # elif p0 == "E":
+                #     log.info("Get E")
+                #     self.goal.target_pose.pose = self.location['E']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params E done error")
+                #         log.error("params E done error")
+                # elif p0 == "F":
+                #     log.info("Get F")
+                #     self.goal.target_pose.pose = self.location['F']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params F done error")
+                #         log.error("params F done error")
+                # elif p0 == "G":
+                #     log.info("Get G")
+                #     self.goal.target_pose.pose = self.location['G']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params G done error")
+                #         log.error("params G done error")
+                # elif p0 == "H":
+                #     log.info("Get H")
+                #     self.goal.target_pose.pose = self.location['H']
+                #     self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params H done error")
+                #         log.error("params H done error")
+                # elif p0 == "W":
+                #     log.info("Get W")
+                #     self.goal.target_pose.pose = self.location['W']
+                #     self.move_base.send_goal(
+                #         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params W done error")
+                #         log.error("params W done error")
+                # elif p0 == "X":
+                #     log.info("Get X")
+                #     self.goal.target_pose.pose = self.location['X']
+                #     self.move_base.send_goal(
+                #         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params X done error")
+                #         log.error("params X done error")
+                # elif p0 == "Y":
+                #     log.info("Get Y")
+                #     self.goal.target_pose.pose = self.location['Y']
+                #     self.move_base.send_goal(
+                #         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params Y done error")
+                #         log.error("params Y done error")
+                # elif p0 == "Z":
+                #     log.info("Get Z")
+                #     self.goal.target_pose.pose = self.location['Z']
+                #     self.move_base.send_goal(
+                #         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
+                #     if not self.move_base.wait_for_result():
+                #         error_code = E_MOD_EXCEPTION
+                #         error_info = ErrorInfo(error_code, "params Z done error")
+                #         log.error("params Z done error")
+                elif p0 in ['A', 'B', 'B1', 'B2', 'B3', 'C', 'D', 'E', 'F', 'G', 'H', 'X', 'Y', 'Z']
+                    log.info("Get {}".format(p0))
+                    self.goal.target_pose.pose = self.location[p0]
                     self.move_base.send_goal(
                         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
                     if not self.move_base.wait_for_result():
                         error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params B1 done error")
-                        log.error("params B1 done error")
-                elif p0 == "B2":
-                    print "Get B2"
-                    self.goal.target_pose.pose = self.location['B2']
-                    self.move_base.send_goal(
-                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params B2 done error")
-                        log.error("params B2 done error")
-                elif p0 == "B3":
-                    print "Get B3"
-                    self.goal.target_pose.pose = self.location['B3']
-                    self.move_base.send_goal(
-                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params B3 done error")
-                        log.error("params B3 done error")
-                elif p0 == "C":
-                    print "Get C"
-                    self.goal.target_pose.pose = self.location['C']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params C done error")
-                        log.error("params C done error")
-                elif p0 == "D":
-                    print "Get D"
-                    self.goal.target_pose.pose = self.location['D']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params D done error")
-                        log.error("params D done error")
-                elif p0 == "E":
-                    print "Get E"
-                    self.goal.target_pose.pose = self.location['E']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params E done error")
-                        log.error("params E done error")
-                elif p0 == "F":
-                    print "Get F"
-                    self.goal.target_pose.pose = self.location['F']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params F done error")
-                        log.error("params F done error")
-                elif p0 == "G":
-                    print "Get G"
-                    self.goal.target_pose.pose = self.location['G']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params G done error")
-                        log.error("params G done error")
-                elif p0 == "H":
-                    print "Get H"
-                    self.goal.target_pose.pose = self.location['H']
-                    self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params H done error")
-                        log.error("params H done error")
-                elif p0 == "W":
-                    print "Get W"
-                    self.goal.target_pose.pose = self.location['W']
-                    self.move_base.send_goal(
-                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params W done error")
-                        log.error("params W done error")
-                elif p0 == "X":
-                    print "Get X"
-                    self.goal.target_pose.pose = self.location['X']
-                    self.move_base.send_goal(
-                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params X done error")
-                        log.error("params X done error")
-                elif p0 == "Y":
-                    print "Get Y"
-                    self.goal.target_pose.pose = self.location['Y']
-                    self.move_base.send_goal(
-                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params Y done error")
-                        log.error("params Y done error")
-                elif p0 == "Z":
-                    print "Get Z"
-                    self.goal.target_pose.pose = self.location['Z']
-                    self.move_base.send_goal(
-                        self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
-                        error_code = E_MOD_EXCEPTION
-                        error_info = ErrorInfo(error_code, "params Z done error")
-                        log.error("params Z done error")
+                        error_info = ErrorInfo(error_code, "params {} done error".format(p0))
+                        log.error("params {} done error".format(p0))
                 else:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params error")
         elif msg.cmd == "charge":
-            print "Get cmd charge"
+            log.info("Get cmd charge")
             self.goal_code = 'W'
             self.charge_reset = False
             self.charge_limit = get_dict_key_value(msg.params, 'percent', (int,float))
-            print "charge limit is %s" % self.charge_limit
+            log.info("charge limit is {}".format(self.charge_limit))
 
             if self.is_simulation_:
                 error_code = E_OK
@@ -459,15 +467,15 @@ class ActuatorMove(Actuator):
             elif self.charge_limit < self.percent:
                 error_code = E_OK
                 error_info = ErrorInfo(error_code, "")
-                print "Battery percent is higher than limit given, omit charge cmd"
+                log.info("Battery percent is higher than limit given, omit charge cmd")
             else:
                 # Navigation to point by laser in front of dock station
                 time.sleep(1.0)
                 while not self.move_base.wait_for_server(rospy.Duration(1.0)):
                     if rospy.is_shutdown():
                         return
-                    print "Waiting for move_base server..."
-                print "Move_base server connected"
+                    log.info("Waiting for move_base server...")
+                log.info("Move_base server connected")
                 self.goal.target_pose.header.stamp = rospy.Time.now()
                 self.goal.target_pose.pose = self.location['W']
                 self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
@@ -480,8 +488,8 @@ class ActuatorMove(Actuator):
                     while not self.auto_docking.wait_for_server(rospy.Duration(1.0)):
                         if rospy.is_shutdown():
                             return
-                        print "Waiting for dock_drive_action server..."
-                    print "Dock_drive_action server connected"
+                        log.info("Waiting for dock_drive_action server...")
+                    log.info("Dock_drive_action server connected")
                     self.auto_docking.send_goal(self.goal_docking)
                     if not self.auto_docking.wait_for_result():
                         error_code = E_MOD_EXCEPTION
@@ -493,20 +501,20 @@ class ActuatorMove(Actuator):
 
                         # Block 1. when percent is lower than limit. 2. No reset cmd
                         while self.percent < self.charge_limit and not self.charge_reset:
-                            print "Charging, percent is %f" % self.percent
+                            log.info("Charging, percent is {}".format(self.percent))
                             time.sleep(1.0)
                         self.charge_reset = False
 
                         if self.goal_code == '':
-                            print "Charge done, moving to standby"
+                            log.info("Charge done, moving to standby")
 
                             # After charge done, move robot a little behind and turn 180 degree to standby
                             self.goal.target_pose.header.stamp = rospy.Time.now()
                             while not self.move_base.wait_for_server(rospy.Duration(1.0)):
                                 if rospy.is_shutdown():
                                     return
-                                print "Waiting for move_base server..."
-                            print "Move_base server connected"
+                                log.info("Waiting for move_base server...")
+                            log.info("Move_base server connected")
                             self.goal.target_pose.pose = Pose(
                                 Point(-0.591, -0.074, 0.000),
                                 Quaternion(0.000, 0.000, 1.000, 0.000))
@@ -521,7 +529,7 @@ class ActuatorMove(Actuator):
                 value_ret = 60.0
             else:
                 value_ret = self.percent
-                print "Battery is %f percents" % value_ret
+                log.info("Battery is {} percents".format(value_ret))
         else:
             is_has_handle = False
 
@@ -542,13 +550,13 @@ class ActuatorMove(Actuator):
 
     # override function
     def abort_handle(self):
-        print "%s: abort_handle ss" % self.name_
+        log.info("{}: abort_handle ss".format(self.name_))
         self.charge_reset = True
         if not self.is_simulation_:
             self.move_base.cancel_goal()
 
     def reset_handle(self):
-        print "%s: reset_handle ss" % self.name_
+        log.info("{}: reset_handle ss".format(self.name_))
         self.charge_reset = True
         if not self.is_simulation_:
             self.move_base.cancel_goal()
