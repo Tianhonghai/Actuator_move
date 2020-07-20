@@ -173,11 +173,17 @@ class ActuatorMove(Actuator):
             self.location['H'] = Pose(
                 Point(-12.694,  0.125, 0.000), Quaternion(0.000, 0.000, 0.703, 0.710))
 
+            # self.location['B3'] = Pose(
+            #     Point(-9.721, -7.556, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+
             self.location['B3'] = Pose(
-                Point(-9.721, -7.556, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+                Point(-9.721, -6.556, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+
+            # self.location['B2'] = Pose(
+            #     Point(-10.183, -5.306, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
             self.location['B2'] = Pose(
-                Point(-10.183, -5.306, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+                Point(-10.183, -4.306, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
             self.location['B1'] = Pose(
                 Point(-9.958, -2.205, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
