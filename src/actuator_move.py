@@ -149,9 +149,9 @@ class ActuatorMove(Actuator):
         if not self.is_simulation_:
             self.location = dict()
 
-            self.location['Z'] = Pose(Point( 11.814, -1.608, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
+            self.location['X'] = Pose(Point(11.814, -1.608, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
             self.location['Y'] = Pose(Point(11.454, -1.575, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
-            self.location['X'] = Pose(Point(11.083, -1.586, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
+            self.location['Z'] = Pose(Point(11.083, -1.586, 0.000), Quaternion(0.000, 0.000, -0.712, 0.701))
 
             self.location['W'] = Pose(Point(-0.872, -0.055, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
@@ -177,7 +177,7 @@ class ActuatorMove(Actuator):
             #     Point(-9.721, -7.556, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
             self.location['B3'] = Pose(
-                Point(-9.721, -6.556, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
+                Point(-10.183, -6.556, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
 
             # self.location['B2'] = Pose(
             #     Point(-10.183, -5.306, 0.000), Quaternion(0.000, 0.000, 0.000, 1.000))
