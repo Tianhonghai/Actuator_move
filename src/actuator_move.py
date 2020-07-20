@@ -144,7 +144,7 @@ class ActuatorMove(Actuator):
 
         self.charge_limit = 0.0
         self.charge_reset = False
-
+        self.located = False
 
         if not self.is_simulation_:
             self.location = dict()
@@ -201,6 +201,12 @@ class ActuatorMove(Actuator):
             self.center_pose_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.battery_callback)
 
             self.tf_listener = tf.TransformListener()
+            while not self.tf_listener.canTransform('map', 'base_footprint', rospy.Time(0.0)):
+                log.info("Waiting for location")
+                time.sleep(1.0)
+            self.located = True
+            log.info("Locate successefully, robot will be in idle")
+
 
 
         # connect to proxy
@@ -554,10 +560,8 @@ class ActuatorMove(Actuator):
     def set_status(self, status):
         with self.data_condition_:
             if not self.is_simulation_:
-                while not self.tf_listener.canTransform('map', 'base_footprint', rospy.Time(0.0)):
-                    log.info("Waiting for location")
+                while not self.located:
                     time.sleep(1.0)
-            log.info("Locate successefully, robot is in idle")
             self.status_ = status
 
     def get_status(self):
