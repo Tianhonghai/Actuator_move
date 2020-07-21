@@ -352,7 +352,10 @@ class ActuatorMove(Actuator):
                 self.goal.target_pose.header.stamp = rospy.Time.now()
                 self.goal.target_pose.pose = self.location['W']
                 self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                if not self.move_base.wait_for_result():
+                self.move_base.wait_for_result()
+                status = self.move_base.get_state()
+                log.info('Final status is {}'.format(status))
+                if status != 3:
                     error_code = E_MOD_EXCEPTION
                     error_info = ErrorInfo(error_code, "charge laser navigation done error")
                     log.error("charge laser navigation done error")
@@ -364,10 +367,13 @@ class ActuatorMove(Actuator):
                         log.info("Waiting for dock_drive_action server...")
                     log.info("Dock_drive_action server connected")
                     self.auto_docking.send_goal(self.goal_docking)
-                    if not self.auto_docking.wait_for_result():
+                    self.auto_docking.wait_for_result()
+                    status = self.auto_docking.get_state()
+                    if status != 3:
                         error_code = E_MOD_EXCEPTION
                         error_info = ErrorInfo(error_code, "charge ir navigation done error")
                         log.error("Charge Ir navigation done error in charge cmd")
+                        self.auto_docking.cancel_goal()
                     else:
                         # To diff stopping charge from 'reset/abort handle, and charged to limit' or 'get new goal in cmd go'
                         self.goal_code = ''
@@ -376,9 +382,8 @@ class ActuatorMove(Actuator):
                         while self.percent < self.charge_limit and not self.charge_reset:
                             log.info("Charging, percent is {}".format(self.percent))
                             time.sleep(1.0)
-                        self.charge_reset = False
 
-                        if self.goal_code == '':
+                        if not self.charge_reset:
                             log.info("Charge done, moving to standby")
 
                             # After charge done, move robot a little behind and turn 180 degree to standby
@@ -392,10 +397,14 @@ class ActuatorMove(Actuator):
                                 Point(-0.591, -0.074, 0.000),
                                 Quaternion(0.000, 0.000, 1.000, 0.000))
                             self.move_base.send_goal(self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                            if not self.move_base.wait_for_result():
+                            self.move_base.wait_for_result()
+                            status = self.move_base.get_state()
+                            if status != 3:
                                 error_code = E_MOD_EXCEPTION
                                 error_info = ErrorInfo(error_code, "charge laser navigation done error")
                                 log.error("Laser navigation done error in charge cmd")
+                                self.move_base.cancel_goal()
+                        self.charge_reset = False
 
         elif msg.cmd == "battery":
             if self.is_simulation_:
