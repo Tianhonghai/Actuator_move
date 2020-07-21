@@ -315,10 +315,15 @@ class ActuatorMove(Actuator):
                     self.goal.target_pose.pose = self.location[p0]
                     self.move_base.send_goal(
                         self.goal, self.doneCb, self.activeCb, self.feedbackCb)
-                    if not self.move_base.wait_for_result():
+                    self.move_base.wait_for_result()
+                    status = self.move_base.get_state()
+                    log.info('Final status is {}'.format(status))
+                    if status != 3:
                         error_code = E_MOD_EXCEPTION
                         error_info = ErrorInfo(error_code, "params {} done error".format(p0))
                         log.error("params {} done error".format(p0))
+                        self.move_base.cancel_goal()
+                    
                 else:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params error")
