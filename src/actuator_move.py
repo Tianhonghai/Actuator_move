@@ -230,7 +230,10 @@ class ActuatorMove(Actuator):
         log.info('Move_base: {} Active' .format(self.goal_code))
 
     def doneCb(self, status, result):
-        log.info('Move_base: {} Arrived'.format(self.goal_code))
+        if status == 3:
+            log.info('Move_base: {} Arrived'.format(self.goal_code))
+        else:
+            log.info('Move_base: {} Aborted'.format(self.goal_code))
 
     def feedbackCb(self, feedback):
         x1 = self.goal.target_pose.pose.position.x
