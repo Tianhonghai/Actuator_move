@@ -230,8 +230,8 @@ class ActuatorMove(Actuator):
         log.info('Move_base: {} Active' .format(self.goal_code))
 
     def doneCb(self, status, result):
-        log.info(status)
-        log.info(result)
+        log.info('Status in doneCb is {}'.format(status))
+        log.info('Result in doneCb is {}'.format(result))
         if status == 3:
             log.info('Move_base: {} Arrived'.format(self.goal_code))
         else:
