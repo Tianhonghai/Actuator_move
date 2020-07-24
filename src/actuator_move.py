@@ -370,15 +370,20 @@ class ActuatorMove(Actuator):
                         # status = self.exact_move_base.get_state()
 
                         client = actionlib.SimpleActionClient('exact_move_base', AutoDockingAction)
-                        while not client.wait_for_server(rospy.Duration(1.0)):
+                        flag = False
+                        while not flag:
+                            flag = client.wait_for_server(rospy.Duration(1.0))
+                            log.info("Exact_move_base server connect...{}".format(flag))
                             if rospy.is_shutdown(): return
                             print 'Action server is not connected yet. still waiting...'
+                        
+                        log.info("Exact_move_base server connect...{}".format(flag))
                         goal = AutoDockingGoal()
                         client.send_goal(goal)
                         print 'Goal: Sent.'
                         rospy.on_shutdown(client.cancel_goal)
                         client.wait_for_result()
-                        status = self.client.get_state()
+                        status = client.get_state()
 
                         if status != 3:
                             error_code = E_MOD_EXCEPTION
