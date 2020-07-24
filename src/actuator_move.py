@@ -370,7 +370,7 @@ class ActuatorMove(Actuator):
                         # self.exact_move_base.wait_for_result()
                         # log.info("exact_move finished")
                         # status = self.exact_move_base.get_state()
-                        exact_move_base_client()
+                        status = exact_move_base_client()
                         if status != 3:
                             error_code = E_MOD_EXCEPTION
                             error_info = ErrorInfo(error_code, "Qrcode navigation done error")
