@@ -267,7 +267,7 @@ class ActuatorMove(Actuator):
         log.info('Result - [ExactMoveBase: ' + state + ']') 
 
     def exactactiveCb(self):
-        if 0: print 'Action server went active.'
+        log.info("ExactMoveBase active")
 
     def exactfeedbackCb(self, feedback):
         # Print state of dock_drive module (or node.)
@@ -362,7 +362,8 @@ class ActuatorMove(Actuator):
                                 return
                             log.info("Waiting for exact_move_base server...")
                         log.info("Exact_move_base server connected")
-                        self.exact_move_base.send_goal(self.goal_trash, self.exactdoneCb, self.exactactiveCb, self.exactfeedbackCb)
+                        goal = AutoDockingGoal()
+                        self.exact_move_base.send_goal(goal, self.exactdoneCb, self.exactactiveCb, self.exactfeedbackCb)
                         log.info("Sent goal")
                         self.exact_move_base.wait_for_result()
                         log.info("exact_move finished")
