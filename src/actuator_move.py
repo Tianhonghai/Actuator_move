@@ -201,10 +201,14 @@ class ActuatorMove(Actuator):
             self.goal = MoveBaseGoal()
             self.goal.target_pose.header.frame_id = 'map'
 
-            # Set dock_drive_action
+            # Set dock_drive_action client
             self.auto_docking = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
             self.goal_docking = AutoDockingGoal()
             self.center_pose_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.battery_callback)
+
+            # Set exact_move_base
+            self.exact_move_base = actionlib.SimpleActionClient("exact_move_base", AutoDockingAction)
+            self.goal_trash = AutoDockingGoal()
 
             self.tf_listener = tf.TransformListener()
             while not self.tf_listener.canTransform('map', 'base_footprint', rospy.Time(0.0)):
@@ -245,6 +249,28 @@ class ActuatorMove(Actuator):
         # print "Distance from %s is %f" % (self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5)
         log.info("Distance from {} is {}" .format(self.goal_code, ((x1 - x2)**2 + (y1 - y2)**2)**0.5))
         # Print state of dock_drive module (or node.)
+
+    def exactdoneCb(self, status, result):
+        if 0: print ''
+        elif status == GoalStatus.PENDING   : state='PENDING'
+        elif status == GoalStatus.ACTIVE    : state='ACTIVE'
+        elif status == GoalStatus.PREEMPTED : state='PREEMPTED'
+        elif status == GoalStatus.SUCCEEDED : state='SUCCEEDED'
+        elif status == GoalStatus.ABORTED   : state='ABORTED'
+        elif status == GoalStatus.REJECTED  : state='REJECTED'
+        elif status == GoalStatus.PREEMPTING: state='PREEMPTING'
+        elif status == GoalStatus.RECALLING : state='RECALLING'
+        elif status == GoalStatus.RECALLED  : state='RECALLED'
+        elif status == GoalStatus.LOST      : state='LOST'
+        # Print state of action server
+        log.info('Result - [ExactMoveBase: ' + state + ']') 
+
+    def exactactiveCb(self):
+        if 0: print 'Action server went active.'
+
+    def exactfeedbackCb(self, feedback):
+        # Print state of dock_drive module (or node.)
+        log.info('Feedback: [ExactMoveBase: ' + feedback.text + ']')
 
     def spinOnce(self):
         r = rospy.Rate(self.rate)
@@ -328,7 +354,21 @@ class ActuatorMove(Actuator):
                         error_info = ErrorInfo(error_code, "params {} done error".format(p0))
                         log.error("params {} done error".format(p0))
                         self.move_base.cancel_goal()
-                    
+                    if p0 in ['X', 'Y', 'Z']:
+                        log.info("Ready to move to trash point {}".format(p0))
+                        while not self.exact_move_base.wait_for_server(rospy.Duration(1.0)):
+                            if rospy.is_shutdown():
+                                return
+                            log.info("Waiting for exact_move_base server...")
+                        log.info("Exact_move_base server connected")
+                        self.exact_move_base.send_goal(self.goal_trash)
+                        self.exact_move_base.wait_for_result()
+                        status = self.exact_move_base.get_state()
+                        if status != 3:
+                            error_code = E_MOD_EXCEPTION
+                            error_info = ErrorInfo(error_code, "Qrcode navigation done error")
+                            log.error("Qrcode navigation done error in charge cmd")
+                            self.exact_move_base.cancel_goal()
                 else:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params error")
