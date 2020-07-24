@@ -370,6 +370,10 @@ class ActuatorMove(Actuator):
                         # status = self.exact_move_base.get_state()
 
                         client = actionlib.SimpleActionClient('exact_move_base', AutoDockingAction)
+                        print(client.gh)
+                        print(client.simple_state)
+                        print(client.action_client)
+                        print(client.done_condition)
                         flag = False
                         while not flag:
                             flag = client.wait_for_server(rospy.Duration(1.0))
