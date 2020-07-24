@@ -363,6 +363,7 @@ class ActuatorMove(Actuator):
                             log.info("Waiting for exact_move_base server...")
                         log.info("Exact_move_base server connected")
                         self.exact_move_base.send_goal(self.goal_trash, self.exactdoneCb, self.exactactiveCb, self.exactfeedbackCb)
+                        log.info("Sent goal")
                         self.exact_move_base.wait_for_result()
                         log.info("exact_move finished")
                         status = self.exact_move_base.get_state()
