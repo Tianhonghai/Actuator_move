@@ -34,6 +34,8 @@ from rlog import rlog
 import numpy as np
 log = rlog()
 
+from ExactMoveBaseClient import exact_move_base_client
+
 # Define Error code
 MOD_ERR_NUM = 3600
 MOD_ERR_SELF_OFFSET = 20
@@ -368,27 +370,7 @@ class ActuatorMove(Actuator):
                         # self.exact_move_base.wait_for_result()
                         # log.info("exact_move finished")
                         # status = self.exact_move_base.get_state()
-
-                        client = actionlib.SimpleActionClient('exact_move_base', AutoDockingAction)
-                        print(client.gh)
-                        print(client.simple_state)
-                        print(client.action_client)
-                        print(client.done_condition)
-                        flag = False
-                        while not flag:
-                            flag = client.wait_for_server(rospy.Duration(1.0))
-                            log.info("Exact_move_base server connect...{}".format(flag))
-                            if rospy.is_shutdown(): return
-                            print 'Action server is not connected yet. still waiting...'
-                        
-                        log.info("Exact_move_base server connect...{}".format(flag))
-                        goal = AutoDockingGoal()
-                        client.send_goal(goal)
-                        print 'Goal: Sent.'
-                        rospy.on_shutdown(client.cancel_goal)
-                        client.wait_for_result()
-                        status = client.get_state()
-
+                        exact_move_base_client()
                         if status != 3:
                             error_code = E_MOD_EXCEPTION
                             error_info = ErrorInfo(error_code, "Qrcode navigation done error")
