@@ -208,8 +208,8 @@ class ActuatorMove(Actuator):
             # self.center_pose_sub = rospy.Subscriber("/mobile_base/sensors/core", SensorState, self.battery_callback)
 
             # Set exact_move_base
-            self.exact_move_base = actionlib.SimpleActionClient("exact_move_base", AutoDockingAction)
-            self.goal_trash = AutoDockingGoal()
+            # self.exact_move_base = actionlib.SimpleActionClient("exact_move_base", AutoDockingAction)
+            # self.goal_trash = AutoDockingGoal()
 
             self.tf_listener = tf.TransformListener()
             while not self.tf_listener.canTransform('map', 'base_footprint', rospy.Time(0.0)):
