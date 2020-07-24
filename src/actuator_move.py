@@ -375,7 +375,7 @@ class ActuatorMove(Actuator):
                             error_code = E_MOD_EXCEPTION
                             error_info = ErrorInfo(error_code, "Qrcode navigation done error")
                             log.error("Qrcode navigation done error in charge cmd")
-                            self.exact_move_base.cancel_goal()
+                            # self.exact_move_base.cancel_goal()
                 else:
                     error_code = E_MOD_PARAM
                     error_info = ErrorInfo(error_code, "params error")

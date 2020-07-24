@@ -79,7 +79,7 @@ def exact_move_base_client():
   client.wait_for_result()
 
   #print '    - status:', client.get_goal_status_text()
-  return client.get_result()
+  return client.get_state()
 
 if __name__ == '__main__':
   try:
