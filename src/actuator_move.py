@@ -357,17 +357,29 @@ class ActuatorMove(Actuator):
                         self.move_base.cancel_goal()
                     if p0 in ['X', 'Y', 'Z']:
                         log.info("Ready to move to trash point {}".format(p0))
-                        while not self.exact_move_base.wait_for_server(rospy.Duration(1.0)):
-                            if rospy.is_shutdown():
-                                return
-                            log.info("Waiting for exact_move_base server...")
-                        log.info("Exact_move_base server connected")
+                        # while not self.exact_move_base.wait_for_server(rospy.Duration(1.0)):
+                        #     if rospy.is_shutdown():
+                        #         return
+                        #     log.info("Waiting for exact_move_base server...")
+                        # log.info("Exact_move_base server connected")
+                        # goal = AutoDockingGoal()
+                        # self.exact_move_base.send_goal(goal, self.exactdoneCb, self.exactactiveCb, self.exactfeedbackCb)
+                        # log.info("Sent goal")
+                        # self.exact_move_base.wait_for_result()
+                        # log.info("exact_move finished")
+                        # status = self.exact_move_base.get_state()
+
+                        client = actionlib.SimpleActionClient('exact_move_base', AutoDockingAction)
+                        while not client.wait_for_server(rospy.Duration(1.0)):
+                            if rospy.is_shutdown(): return
+                            print 'Action server is not connected yet. still waiting...'
                         goal = AutoDockingGoal()
-                        self.exact_move_base.send_goal(goal, self.exactdoneCb, self.exactactiveCb, self.exactfeedbackCb)
-                        log.info("Sent goal")
-                        self.exact_move_base.wait_for_result()
-                        log.info("exact_move finished")
-                        status = self.exact_move_base.get_state()
+                        client.send_goal(goal)
+                        print 'Goal: Sent.'
+                        rospy.on_shutdown(client.cancel_goal)
+                        client.wait_for_result()
+                        status = self.client.get_state()
+
                         if status != 3:
                             error_code = E_MOD_EXCEPTION
                             error_info = ErrorInfo(error_code, "Qrcode navigation done error")
